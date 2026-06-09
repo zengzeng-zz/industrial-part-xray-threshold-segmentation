@@ -79,8 +79,4 @@ python src/contour_analysis.py --input-dir results/images/segmentation --output 
 3. 合并前至少由另一名成员进行一次 review。
 4. 组长负责汇总结果图、统计表、报告和最终答辩材料。
 
-## 当前仓库状态
 
-- 已整理课题说明和项目骨架
-- 已补充缺陷统计模块与文档模板
-- 待补充预处理代码、阈值分割代码和真实实验数据
