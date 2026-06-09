@@ -1,0 +1,4 @@
+﻿image_name,component_id,area_px,perimeter_px,bbox_x,bbox_y,bbox_width,bbox_height
+sample_mask.png,1,1050,130,20,15,35,30
+sample_mask.png,2,1750,170,80,60,50,35
+sample_mask.png,3,400,80,30,85,20,20
