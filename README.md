@@ -1,82 +1,110 @@
 # 工业零件 X 光图像阈值分割与缺陷标注
 
-本项目对应数字图像处理课程设计课题 2，目标是对工业零件 X 光图像进行预处理、阈值分割、缺陷区域提取和统计分析，并形成可复现的实验结果。
+本项目对应数字图像处理课程设计选题 2，目标是对工业零件或焊缝 X 光图像进行预处理、缺陷区域分割、缺陷标注与特征统计，并输出课程设计报告所需的结果图和统计表。
 
 ## 项目目标
 
-- 对工业零件 X 光图像进行基础预处理，减弱噪声并提升对比度
-- 实现全局阈值、Otsu、自适应阈值等分割方法
-- 自动提取缺陷轮廓并完成缺陷框选标注
-- 统计缺陷区域的面积、周长、外接矩形等特征
-- 输出结果图、统计表和课程设计报告素材
+- 对 X 光图像进行去噪和对比度增强
+- 自动定位焊缝主体区域，减少文字、编号等非缺陷内容的干扰
+- 提取疑似缺陷区域并进行框选标注
+- 统计缺陷面积、周长、外接矩形等特征
+- 生成实验结果图、统计表和课程设计材料
 
 ## 目录结构
 
 ```text
 data/
-  raw/                原始 X 光图像
-  processed/          预处理后的图像
+  raw/                      原始 X 光图像
+  processed/                预处理后的灰度图
 docs/
-  references.md       参考文献整理
-  report_outline.md   报告写作提纲
-  experiment_analysis.md  实验分析草稿
+  experiment_analysis.md    实验分析草稿
+  issue3_checklist.md       当前任务清单
+  references.md             参考文献整理
+  report_outline.md         报告提纲
 final/
-  report.docx         最终报告
-  slides.pptx         最终答辩材料
+  report.docx               最终报告
+  slides.pptx               最终答辩材料
 results/
   images/
-    preprocess/       预处理结果图
-    segmentation/     分割与标注结果图
+    preprocess/             预处理对比图
+    segmentation/           缺陷分割与标注结果图
   tables/
-    defect_statistics.csv  缺陷统计结果
+    defect_statistics.csv   缺陷统计结果
 src/
-  contour_analysis.py 缺陷特征统计模块
+  preprocess.py             预处理脚本
+  segment_defects.py        分割与标注脚本
+  contour_analysis.py       缺陷统计脚本
 ```
 
 ## 成员分工
 
-- lx：图像收集、灰度化、滤波去噪、增强处理
-- lsj：阈值分割、轮廓提取、缺陷标注
-- zjy：缺陷特征统计、实验结果分析、README 与最终材料整理
+- `lx`：图像收集、灰度化、滤波去噪、增强处理
+- `lsj`：阈值分割、轮廓提取、缺陷标注
+- `zjy`：缺陷特征统计、实验结果分析、README 与最终材料整理
 
 ## 运行说明
 
-当前仓库优先保证 Issue 3 对应内容完整，因此先提供缺陷统计模块。等成员提交预处理图和分割结果后，可直接运行以下命令生成统计表：
+当前项目主流程基于 OpenCV 实现，推荐使用 Python 3.10 及以上版本。
+
+### 1. 安装依赖
 
 ```powershell
-python src/contour_analysis.py --input-dir results/images/segmentation --output results/tables/defect_statistics.csv
+pip install opencv-python numpy pillow
 ```
 
-现在仓库已补充一套不依赖 OpenCV 的基础处理流程，可按以下顺序运行：
+如果后续需要绘制更完整的统计图表，可额外安装：
+
+```powershell
+pip install matplotlib pandas
+```
+
+### 2. 准备数据
+
+将原始 X 光图像放入 `data/raw/`，支持以下格式：
+
+- `.png`
+- `.jpg`
+- `.jpeg`
+- `.bmp`
+- `.tif`
+- `.tiff`
+
+### 3. 执行流程
+
+在项目根目录依次运行：
 
 ```powershell
 python src/preprocess.py --input-dir data/raw
 python src/segment_defects.py --input-dir data/processed
-python src/contour_analysis.py --input-dir results/images/segmentation --output results/tables/defect_statistics.csv
+python src/contour_analysis.py --input-dir results/images/segmentation --output results/tables/defect_statistics.csv --filename-keyword _weld_mask
 ```
 
-各脚本输出说明：
+### 4. 各脚本功能
 
 - `src/preprocess.py`
+  - 使用中值滤波、非局部均值去噪和 CLAHE 完成预处理
   - 输出增强后的灰度图到 `data/processed/`
-  - 输出原图/预处理对比图到 `results/images/preprocess/`
+  - 输出原图与预处理图对比图到 `results/images/preprocess/`
 - `src/segment_defects.py`
-  - 对每张图分别生成 `global`、`otsu`、`adaptive` 三套结果
-  - 输出二值掩码、框选标注图、左右对比图到 `results/images/segmentation/`
+  - 自动检测焊缝亮带
+  - 仅在焊缝中心检测区域内查找暗缺陷候选
+  - 输出掩码图、标注图和对比图到 `results/images/segmentation/`
 - `src/contour_analysis.py`
-  - 读取二值掩码图并导出缺陷面积、周长、外接框统计表
+  - 读取二值掩码图
+  - 统计面积、周长、外接框等特征
+  - 输出 CSV 统计表到 `results/tables/defect_statistics.csv`
 
-脚本支持的输入包括：
+### 5. 输出结果
 
-- 二值缺陷掩码图
-- 已经分割好的缺陷区域图
-- 黑白两色明显可分的标注结果图
+运行完成后，主要结果如下：
 
-## 建议协作流程
+- `results/images/preprocess/`：预处理对比图
+- `results/images/segmentation/`：缺陷分割与标注结果图
+- `results/tables/defect_statistics.csv`：缺陷统计表
 
-1. 每名成员在自己的分支上开发并提交 commit。
-2. 每个阶段完成后发起 Pull Request 到 `main`。
-3. 合并前至少由另一名成员进行一次 review。
-4. 组长负责汇总结果图、统计表、报告和最终答辩材料。
+## 当前仓库状态
 
-
+- 已完成项目目录和课程设计文档骨架
+- 已完成基于 OpenCV 的预处理、分割、标注和统计主流程
+- 已能对测试图像输出结果图和缺陷统计表
+- 后续可继续进行参数调优、结果筛选和课程设计报告整理
