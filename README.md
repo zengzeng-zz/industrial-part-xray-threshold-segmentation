@@ -35,13 +35,13 @@ src/
 
 ## 成员分工
 
-- 组员 A：图像收集、灰度化、滤波去噪、增强处理
-- 组员 B：阈值分割、轮廓提取、缺陷标注
-- 组长：缺陷特征统计、实验结果分析、README 与最终材料整理
+- lx：图像收集、灰度化、滤波去噪、增强处理
+- lsj：阈值分割、轮廓提取、缺陷标注
+- zjy：缺陷特征统计、实验结果分析、README 与最终材料整理
 
 ## 运行说明
 
-当前仓库优先保证 Issue 3 对应内容完整，因此先提供缺陷统计模块。等组员 A、B 提交预处理图和分割结果后，可直接运行以下命令生成统计表：
+当前仓库优先保证 Issue 3 对应内容完整，因此先提供缺陷统计模块。等成员提交预处理图和分割结果后，可直接运行以下命令生成统计表：
 
 ```powershell
 python src/contour_analysis.py --input-dir results/images/segmentation --output results/tables/defect_statistics.csv
