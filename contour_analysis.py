@@ -139,16 +139,26 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--input-dir", type=Path, required=True, help="Directory containing segmentation result images.")
     parser.add_argument("--output", type=Path, required=True, help="Output CSV file path.")
     parser.add_argument("--min-area", type=int, default=10, help="Ignore components smaller than this many pixels.")
+    parser.add_argument(
+        "--filename-keyword",
+        type=str,
+        default="_mask",
+        help="Only analyze images whose filename contains this keyword. Use empty string to analyze all images.",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
     input_dir: Path = args.input_dir
-    image_paths = sorted(path for path in input_dir.iterdir() if path.suffix.lower() in IMAGE_EXTENSIONS)
 
     if not input_dir.exists():
         raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
+    image_paths = sorted(path for path in input_dir.iterdir() if path.suffix.lower() in IMAGE_EXTENSIONS)
+    if args.filename_keyword:
+        filtered_paths = [path for path in image_paths if args.filename_keyword in path.stem]
+        if filtered_paths:
+            image_paths = filtered_paths
     if not image_paths:
         raise FileNotFoundError(f"No supported image files found in: {input_dir}")
 
